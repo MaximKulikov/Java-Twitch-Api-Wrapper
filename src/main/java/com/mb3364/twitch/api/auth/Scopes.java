@@ -1,5 +1,9 @@
 package com.mb3364.twitch.api.auth;
 
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 /**
  * When requesting authorization from users, the scope parameter allows you to specify
  * which permissions your app requires. These scopes are ties to the access token you
@@ -84,11 +88,10 @@ public enum Scopes {
      */
     public static String join(Scopes... scopes) {
         if (scopes == null) return "";
-        StringBuilder sb = new StringBuilder();
-        for (Scopes scope : scopes) {
-            sb.append(scope.getKey()).append("+");
-        }
-        return sb.toString();
+
+        return Arrays.stream(scopes)
+                .map(Scopes::getKey)
+                .collect(Collectors.joining("+"));
     }
 
     /**

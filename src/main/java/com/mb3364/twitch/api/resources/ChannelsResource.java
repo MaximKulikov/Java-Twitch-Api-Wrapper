@@ -1,14 +1,20 @@
 package com.mb3364.twitch.api.resources;
 
-import com.mb3364.http.RequestParams;
-import com.mb3364.twitch.api.auth.Scopes;
-import com.mb3364.twitch.api.handlers.*;
-import com.mb3364.twitch.api.models.*;
-import org.apache.http.HttpResponse;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import com.mb3364.http.RequestParams;
+import com.mb3364.twitch.api.auth.Scopes;
+import com.mb3364.twitch.api.handlers.*;
+import com.mb3364.twitch.api.models.Channel;
+import com.mb3364.twitch.api.models.ChannelFollows;
+import com.mb3364.twitch.api.models.ChannelSubscriptions;
+import com.mb3364.twitch.api.models.Community;
+import com.mb3364.twitch.api.models.Editors;
+import com.mb3364.twitch.api.models.Subscription;
+import com.mb3364.twitch.api.models.Teams;
+import com.mb3364.twitch.api.models.Videos;
+import org.apache.http.HttpResponse;
 
 /**
  * The {@link ChannelsResource} provides the functionality
@@ -238,7 +244,7 @@ public class ChannelsResource extends AbstractResource {
     public void getSubscriptions(final String channelName, final RequestParams params, final ChannelSubscriptionsResponseHandler handler) {
         String url = String.format("%s/channels/%s/subscriptions", getBaseUrl(), getChannelId(channelName).get(0));
 
-        http.get(url, params, new TwitchHttpResponseHandler(handler) {
+        http.get(url, new TwitchHttpResponseHandler(handler) {
             @Override
             public void onSuccess(int statusCode, Map<String, List<String>> headers, String content) {
                 try {
@@ -250,6 +256,31 @@ public class ChannelsResource extends AbstractResource {
             }
         });
     }
+
+    /**
+     * Require number id
+     *
+     * @param channelId
+     * @param handler
+     */
+    public void getSubscriptionByChannelId(final int channelId, final ChannelSubscriptionsResponseHandler handler){
+        String url = String.format("%s/channels/%s/subscriptions/", getBaseUrl(), channelId);
+
+        http.get(url, new TwitchHttpResponseHandler(handler) {
+            @Override
+            public void onSuccess(int statusCode, Map<String, List<String>> headers, String content) {
+                try {
+                    ChannelSubscriptions value = objectMapper.readValue(content, ChannelSubscriptions.class);
+                    handler.onSuccess(value.getTotal(), value.getSubscriptions());
+                } catch (IOException e) {
+                    handler.onFailure(e);
+                }
+
+            }
+        });
+
+    }
+
 
     /**
      * Gets a list of users subscribed to a specified channel, sorted by the date when they subscribed.
@@ -414,11 +445,11 @@ public class ChannelsResource extends AbstractResource {
     /**
      * Sets a specified channel to be in a specified community.
      * <p>Authentication: Required scope: Any token for the specified channel</p>
-     *
-     * @param channelName the name of the Channel
+     *  @param channelName the name of the Channel
+     * @param communityId
      * @param handler     the response handler
      */
-    public void put(final String channelName, String communityId, final CommunityResponseHandler handler) {
+    public void put(final String channelName, com.mb3364.http.RequestParams communityId, final CommunityResponseHandler handler) {
         String url = String.format("%s/channels/%s/community/%s", getBaseUrl(), getChannelId(channelName).get(0), communityId);
 
         http.put(url, new TwitchHttpResponseHandler(handler) {

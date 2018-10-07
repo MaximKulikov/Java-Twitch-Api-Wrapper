@@ -56,3 +56,4 @@ gradle
 gradlew
 *.json
 pom.xml
+/src/main/test/
